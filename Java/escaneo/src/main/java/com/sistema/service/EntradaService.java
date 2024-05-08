@@ -21,6 +21,14 @@ public class EntradaService {
         return entradaRepository.findByUsuarioId(id);
     }
 
+    public List<Entrada> listarEntradas() {
+        return entradaRepository.findAll();
+    }
+
+    public Optional<Entrada> obtenerEntradaPorId(int id) {
+        return entradaRepository.findById(id);
+    }
+
     public void eliminarEntrada(int id) { // eliminar la entrada
         entradaRepository.deleteById(id);
     }

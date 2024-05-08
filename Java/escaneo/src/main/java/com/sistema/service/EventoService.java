@@ -29,4 +29,8 @@ public class EventoService {
     public List<Evento> buscarEventosPorTitulo(String titulo) { // encuentra los eventos que coincidan minimanete por el titulo
         return eventoRepository.findByTituloContaining(titulo);
     }
+
+    public void eliminarEvento(int id) { // eliminar por id
+        eventoRepository.deleteById(id);
+    }
 }
