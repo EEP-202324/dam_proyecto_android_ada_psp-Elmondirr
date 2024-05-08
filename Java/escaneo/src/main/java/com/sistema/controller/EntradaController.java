@@ -23,9 +23,12 @@ public class EntradaController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Entrada> getEntradaById(@PathVariable int id) {
-        return entradaService.listarEntradasPorUsuarioId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        List<Entrada> entradas = entradaService.listarEntradasPorUsuarioId(id);
+        if (entradas.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok((Entrada) entradas);
+        }
     }
 
     @PostMapping

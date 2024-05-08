@@ -32,8 +32,9 @@ public class EventoController {
         List<Evento> eventos = eventoService.buscarEventosPorTitulo(titulo);
         if(eventos.isEmpty()) {
             return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.ok((Evento) eventos);
         }
-        return ResponseEntity.ok((Evento) eventos);
     }
 
     @PostMapping
