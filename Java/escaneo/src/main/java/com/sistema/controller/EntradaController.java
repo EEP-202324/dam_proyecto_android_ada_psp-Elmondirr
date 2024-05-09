@@ -2,6 +2,7 @@ package com.sistema.controller;
 
 
 import com.sistema.model.Entrada;
+import com.sistema.model.Evento;
 import com.sistema.service.EntradaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,11 +25,10 @@ public class EntradaController {
     @GetMapping("/{id}")
     public ResponseEntity<Entrada> getEntradaById(@PathVariable int id) {
         List<Entrada> entradas = entradaService.listarEntradasPorUsuarioId(id);
-        if (entradas.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        } else {
-            return ResponseEntity.ok((Entrada) entradas);
+        if(entradas.isEmpty()) {
+            return ResponseEntity.noContent().build();
         }
+        return ResponseEntity.ok((Entrada) entradas);
     }
 
     @PostMapping
