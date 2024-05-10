@@ -3,6 +3,7 @@ package com.sistema.model;
 import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "entradas")
@@ -19,8 +20,7 @@ public class Entrada {
     @JoinColumn(name = "evento_id", nullable = false)
     private Evento evento;
 
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(nullable = false, length = 36)
+    @Column(nullable = false, updatable = false, unique = true, length = 36)
     private String uuid;
 
     public int getId() {
@@ -53,5 +53,12 @@ public class Entrada {
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
+    }
+
+    @PrePersist
+    public void initializeUUID() {
+        if (uuid == null) {
+            uuid = UUID.randomUUID().toString();
+        }
     }
 }

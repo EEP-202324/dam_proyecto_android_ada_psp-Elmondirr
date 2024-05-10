@@ -4,6 +4,7 @@ import com.sistema.model.Usuario;
 import com.sistema.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public class UsuarioService {
     private UsuarioRepository usuarioRepository; // Acceso a CRUD (borrar, modificar, crear, ver...)
 
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder; // Encriptar la contraseña *****
+    private PasswordEncoder passwordEncoder; // Encriptar la contraseña *****
 
     public Usuario guardarUsuario(Usuario usuario) { // encripta la contraseña y guarda el usuario en la BBDD
         usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));

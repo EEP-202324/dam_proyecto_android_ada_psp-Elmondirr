@@ -25,7 +25,7 @@ public class Usuario {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-   private String rol = "cliente";
+    private Rol rol = Rol.CLIENTE;
 
    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
    private Set<Entrada> entradas = new HashSet<>();
@@ -70,12 +70,12 @@ public class Usuario {
         this.contrasena = contrasena;
     }
 
-    public String getRol() {
+    public Rol getRol() {
         return rol;
     }
 
     public void setRol(String rol) {
-        this.rol = rol;
+        this.rol = Rol.valueOf(rol);
     }
 
     public Set<Entrada> getEntradas() {
@@ -84,5 +84,9 @@ public class Usuario {
 
     public void setEntradas(Set<Entrada> entradas) {
         this.entradas = entradas;
+    }
+
+    public enum Rol {
+        CLIENTE, ADMIN
     }
 }
