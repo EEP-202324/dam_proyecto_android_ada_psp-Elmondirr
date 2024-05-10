@@ -1,5 +1,6 @@
 package com.sistema.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -10,6 +11,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "eventos")
+@JsonIgnoreProperties({"entradas"})
 public class Evento {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

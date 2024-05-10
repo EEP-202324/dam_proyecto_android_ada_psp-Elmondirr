@@ -1,5 +1,6 @@
 package com.sistema.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -7,6 +8,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "entradas")
+@JsonIgnoreProperties({"evento", "usuario"})
 public class Entrada {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
