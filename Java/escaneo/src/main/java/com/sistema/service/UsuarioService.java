@@ -17,7 +17,7 @@ public class UsuarioService {
     private UsuarioRepository usuarioRepository; // Acceso a CRUD (borrar, modificar, crear, ver...)
 
     @Autowired
-    private PasswordEncoder passwordEncoder; // Encriptar la contraseña *****
+    private BCryptPasswordEncoder passwordEncoder; // Encriptar la contraseña *****
 
     public Usuario guardarUsuario(Usuario usuario) { // encripta la contraseña y guarda el usuario en la BBDD
         usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
