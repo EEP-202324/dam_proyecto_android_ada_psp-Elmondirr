@@ -23,12 +23,12 @@ public class EntradaController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Entrada> getEntradaById(@PathVariable int id) {
+    public ResponseEntity<List<Entrada>> getEntradaById(@PathVariable int id) {
         List<Entrada> entradas = entradaService.listarEntradasPorUsuarioId(id);
-        if(entradas.isEmpty()) {
+        if (entradas.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok((Entrada) entradas);
+        return ResponseEntity.ok(entradas);
     }
 
     @PostMapping
