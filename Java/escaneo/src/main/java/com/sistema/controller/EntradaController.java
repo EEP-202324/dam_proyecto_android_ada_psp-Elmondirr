@@ -32,8 +32,13 @@ public class EntradaController {
     }
 
     @PostMapping
-    public ResponseEntity<Entrada> createEntrada(@RequestBody Entrada entrada) {
-        return ResponseEntity.ok(entradaService.guardarEntrada(entrada));
+    public ResponseEntity<?> createEntrada(@RequestParam int usuarioId, @RequestParam int eventoId) {
+        try {
+            Entrada entrada = entradaService.guardarEntrada(usuarioId, eventoId);
+            return ResponseEntity.ok(entrada);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PutMapping("/{id}")
@@ -41,7 +46,7 @@ public class EntradaController {
         return entradaService.obtenerEntradaPorId(id)
                 .map(u -> { // validar la existencia con el .map
                     entrada.setId(id); // si ha encontrado un usuario hace la funcion del map
-                    return ResponseEntity.ok(entradaService.guardarEntrada(entrada)); //si ha guardado 200
+                    return ResponseEntity.ok(entradaService.guardarEntrada(entrada.getUsuario().getId(), entrada.getEvento().getId())); //si ha guardado 200
                 })
                 .orElse(ResponseEntity.notFound().build()); // si no 404
     }
