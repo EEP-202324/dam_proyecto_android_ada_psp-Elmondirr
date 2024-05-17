@@ -7,7 +7,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "usuarios")
-@JsonIgnoreProperties({"entradas"})
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,11 +48,11 @@ public class Usuario {
         this.nombre = nombre;
     }
 
-    public String getApellido() {
+    public String getApellidos() {
         return apellidos;
     }
 
-    public void setApellido(String apellido) {
+    public void setApellidos(String apellido) {
         this.apellidos = apellido;
     }
 

@@ -33,4 +33,16 @@ public class EventoService {
     public void eliminarEvento(int id) { // eliminar por id
         eventoRepository.deleteById(id);
     }
+
+    // Método para suscribir a un evento
+    public boolean suscribirEvento(int eventoId) {
+        Optional<Evento> eventoOpt = eventoRepository.findById(eventoId); // Busca el evento por ID y retorna un Optional
+        if (eventoOpt.isPresent()) { // Verifica si el evento existe
+            Evento evento = eventoOpt.get(); // Obtiene el evento
+            // Implementa la lógica para suscribir al evento
+            eventoRepository.save(evento); // Guarda el evento actualizado
+            return true; // Retorna true si la suscripción fue exitosa
+        }
+        return false; // Retorna false si el evento no existe
+    }
 }
