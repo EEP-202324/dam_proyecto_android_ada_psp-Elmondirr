@@ -1,5 +1,6 @@
 package com.example.appeventos
 
+import AdminEventListScreen
 import EventListScreen
 import ProfileScreen
 import TicketListScreen
@@ -50,8 +51,8 @@ fun EventApp() {
             } ?: throw IllegalArgumentException("Evento ID is required")
         }
         composable("adminEventDetail/{eventoId}") { backStackEntry ->
-            backStackEntry.arguments?.getInt("eventoId")?.let { eventoId ->
-                AdminEventDetailScreen(navController, eventoId)
+            backStackEntry.arguments?.getString("eventoId")?.let { eventoId ->
+                AdminEventDetailScreen(navController, eventoId.toInt())
             } ?: throw IllegalArgumentException("Admin Evento ID is required")
         }
         // Composable para la pantalla de detalles del ticket
@@ -62,6 +63,8 @@ fun EventApp() {
         }
         // Composable para la pantalla de lista de eventos
         composable("events") { EventListScreen(navController) }
+        // Composable para la pantalla de lista de eventos
+        composable("adminEvents") { AdminEventListScreen(navController) }
         // Composable para la pantalla de lista de tickets
         composable("tickets") { TicketListScreen(navController) }
         // Composable para la pantalla de perfil del usuario

@@ -2,7 +2,10 @@ package com.example.appeventos.ui
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,101 +27,125 @@ fun AdminEventDetailScreen(navController: NavController, eventoId: Int) {
     val context = LocalContext.current
     val eventoState = remember { mutableStateOf<Evento?>(null) }
     val showConfirmationDialog = remember { mutableStateOf(false) }
+    val editMode = remember { mutableStateOf(false) }
+
+    // Form states
+    val titulo = remember { mutableStateOf("") }
+    val aforo = remember { mutableStateOf("") }
+    val fecha = remember { mutableStateOf("") }
 
     // Cargar el evento cuando el composable se compone y cada vez que cambia el eventoId
     LaunchedEffect(eventoId) {
         getEvent(context, eventoId, eventoState)
     }
 
-    if (showConfirmationDialog.value) {
-        AlertDialog(
-            onDismissRequest = {
-                showConfirmationDialog.value = false
-            },
-            title = {
-                Text("Confirmación de Borrado")
-            },
-            text = {
-                Text("¿Estás seguro de que deseas borrar este evento?")
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showConfirmationDialog.value = false
-                        deleteEvent(context, eventoId, navController)
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00695C))
-                ) {
-                    Text("Confirmar", color = Color.White)
-                }
-            },
-            dismissButton = {
-                Button(
-                    onClick = {
-                        showConfirmationDialog.value = false
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336)) // Ajuste del color del botón 'Cancelar' a rojo
-                ) {
-                    Text("Cancelar", color = Color.White)
-                }
-            }
-        )
+    // Update form fields when eventoState changes
+    LaunchedEffect(eventoState.value) {
+        eventoState.value?.let { evento ->
+            titulo.value = evento.titulo
+            aforo.value = evento.aforo.toString()
+            fecha.value = evento.fecha
+        }
     }
+
+
 
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color(0xFFF7F9FC) // Un fondo suave y claro
     ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(24.dp)
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier.padding(24.dp)
-            ) {
-                Divider(color = Color(0xFF00695C), thickness = 2.dp)
-                Text(
-                    "Detalles del Evento",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
-                Divider(color = Color(0xFF00695C), thickness = 2.dp, modifier = Modifier.padding(vertical = 4.dp))
-                eventoState.value?.let { evento ->
+            Divider(color = Color(0xFF00695C), thickness = 2.dp)
+            Text(
+                "Detalles del Evento",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+            Divider(color = Color(0xFF00695C), thickness = 2.dp, modifier = Modifier.padding(vertical = 4.dp))
+            eventoState.value?.let { evento ->
+                if (editMode.value) {
+                    // Mostrar el formulario de edición
+                    OutlinedTextField(
+                        value = titulo.value,
+                        onValueChange = { titulo.value = it },
+                        label = { Text("Título") },
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                    )
+                    OutlinedTextField(
+                        value = aforo.value,
+                        onValueChange = { aforo.value = it },
+                        label = { Text("Aforo") },
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                    )
+                    OutlinedTextField(
+                        value = fecha.value,
+                        onValueChange = { fecha.value = it },
+                        label = { Text("Fecha") },
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                    )
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Button(
+                            onClick = {
+                                editMode.value = false
+                                updateEvent(context, eventoId, titulo.value, aforo.value.toInt(), fecha.value, navController)
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+                        ) {
+                            Text("Guardar", color = Color.White, fontSize = 16.sp)
+                        }
+                        Button(
+                            onClick = {
+                                editMode.value = false
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336))
+                        ) {
+                            Text("Cancelar", color = Color.White, fontSize = 16.sp)
+                        }
+                    }
+                } else {
                     // Mostrar los detalles del evento
                     Text("Título: ${evento.titulo}", fontSize = 18.sp, color = Color.DarkGray)
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text("Aforo: ${evento.aforo}", fontSize = 18.sp, color = Color.DarkGray)
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text("Fecha: ${evento.fecha}", fontSize = 18.sp, color = Color.DarkGray)
                     Spacer(modifier = Modifier.height(20.dp))
-                } ?: Text("Cargando detalles del evento...", fontSize = 16.sp, color = Color.Gray)
 
-                // Botones para modificar y borrar
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Button(
-                        onClick = {
-                            eventoState.value?.let { evento ->
-                                navController.navigate("editEvento/${evento.id}")
-                            }
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+                    // Botones para modificar y borrar
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Modificar", color = Color.White, fontSize = 16.sp)
-                    }
-                    Button(
-                        onClick = {
-                            showConfirmationDialog.value = true
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336)) // Ajuste del color del botón 'Borrar' a rojo
-                    ) {
-                        Text("Borrar", color = Color.White, fontSize = 16.sp)
+                        Button(
+                            onClick = {
+                                editMode.value = true
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+                        ) {
+                            Text("Modificar", color = Color.White, fontSize = 16.sp)
+                        }
+                        Button(
+                            onClick = {
+                                showConfirmationDialog.value = true
+                                deleteEvent(context, eventoId, navController)
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336)) // Ajuste del color del botón 'Borrar' a rojo
+                        ) {
+                            Text("Borrar", color = Color.White, fontSize = 16.sp)
+                        }
                     }
                 }
-            }
+            } ?: Text("Cargando detalles del evento...", fontSize = 16.sp, color = Color.Gray)
+
         }
     }
 }
@@ -140,6 +167,25 @@ fun getEvent(context: Context, eventId: Int, eventoState: MutableState<Evento?>)
     })
 }
 
+// Función para actualizar el evento
+fun updateEvent(context: Context, eventId: Int, titulo: String, aforo: Int, fecha: String, navController: NavController) {
+    val updatedEvent = Evento(id = eventId, titulo = titulo, aforo = aforo, fecha = fecha)
+    ApiClient.apiService.updateEvent(eventId, updatedEvent).enqueue(object : Callback<Evento> {
+        override fun onResponse(call: Call<Evento>, response: Response<Evento>) {
+            if (response.isSuccessful) {
+                Toast.makeText(context, "Evento actualizado exitosamente", Toast.LENGTH_LONG).show()
+                navController.navigateUp()
+            } else {
+                Toast.makeText(context, "Error al actualizar el evento: ${response.errorBody()?.string()}", Toast.LENGTH_LONG).show()
+            }
+        }
+
+        override fun onFailure(call: Call<Evento>, t: Throwable) {
+            Toast.makeText(context, "Error de conexión: ${t.message}", Toast.LENGTH_LONG).show()
+        }
+    })
+}
+
 // Función para borrar un evento
 fun deleteEvent(context: Context, eventId: Int, navController: NavController) {
     ApiClient.apiService.deleteEvent(eventId).enqueue(object : Callback<Void> {
@@ -157,3 +203,4 @@ fun deleteEvent(context: Context, eventId: Int, navController: NavController) {
         }
     })
 }
+

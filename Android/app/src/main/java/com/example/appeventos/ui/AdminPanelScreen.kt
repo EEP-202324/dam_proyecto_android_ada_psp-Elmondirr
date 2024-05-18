@@ -35,7 +35,7 @@ fun AdminPanelScreen(navController: NavController) {
 
             // Botones con esquinas redondeadas para un diseño más amigable y moderno
             Button(
-                onClick = { navController.navigate("events") },
+                onClick = { navController.navigate("AdminEvents") },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00796B)), // Un verde más vibrante para captar atención
                 shape = RoundedCornerShape(12.dp), // Esquinas redondeadas
                 modifier = Modifier.fillMaxWidth()

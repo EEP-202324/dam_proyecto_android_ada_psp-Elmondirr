@@ -18,6 +18,10 @@ interface ApiService {
     fun getEvents(): Call<List<Evento>>
 
     // Endpoint para obtener un evento específico por su ID. Envía una solicitud GET con un ID y recibe un objeto Evento
+    @POST("eventos")
+    fun createEvent(@Body event: Evento): Call<Evento>
+
+    // Endpoint para obtener un evento específico por su ID. Envía una solicitud GET con un ID y recibe un objeto Evento
     @GET("eventos/{id}")
     fun getEvent(@Path("id") id: Int): Call<Evento>
 
@@ -48,4 +52,8 @@ interface ApiService {
     // método para eliminar un evento por ID
     @DELETE("eventos/{id}")
     fun deleteEvent(@Path("id") eventId: Int): Call<Void>
+
+    // metodo para actualizar un evento por ID
+    @PUT("eventos/{id}")
+    fun updateEvent(@Path("id") eventId: Int, @Body event: Evento): Call<Evento>
 }
