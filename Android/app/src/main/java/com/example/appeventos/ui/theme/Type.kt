@@ -1,4 +1,4 @@
-package com.example.entradas.ui.theme
+package com.example.appeventos.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

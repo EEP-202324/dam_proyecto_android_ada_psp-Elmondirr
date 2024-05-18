@@ -57,16 +57,14 @@ public class UsuarioService {
     }
 
     // Método para actualizar el perfil de un usuario
-    public Usuario actualizarPerfil(Usuario perfil) {
-        Usuario usuario = obtenerUsuarioAutenticado(); // Obtiene el usuario autenticado
-        usuario.setNombre(perfil.getNombre()); // Actualiza el nombre
-        usuario.setApellidos(perfil.getApellidos()); // Actualiza los apellidos
-        usuario.setEmail(perfil.getEmail()); // Actualiza el email
-        if (!perfil.getContrasena().isEmpty()) {
-            usuario.setContrasena(passwordEncoder.encode(perfil.getContrasena())); // Encripta y actualiza la contraseña si no está vacía
-        }
-        usuario.setRol(perfil.getRol().toString()); // Actualiza el rol
-        return usuarioRepository.save(usuario); // Guarda el usuario actualizado en la base de datos y lo retorna
+    public Usuario actualizarPerfil(Usuario userProfile) {
+        Usuario usuarioExistente = usuarioRepository.findById(userProfile.getId())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        usuarioExistente.setNombre(userProfile.getNombre());
+        usuarioExistente.setApellidos(userProfile.getApellidos());
+        usuarioExistente.setEmail(userProfile.getEmail());
+        usuarioExistente.setContrasena(userProfile.getContrasena());
+        return usuarioRepository.save(usuarioExistente);
     }
 
     // Método para autenticar un usuario con sus credenciales

@@ -1,15 +1,18 @@
 package com.sistema.controller;
 
 import com.sistema.model.Usuario;
+import com.sistema.repository.UsuarioRepository;
 import com.sistema.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import com.sistema.dto.AuthResponse;
 import com.sistema.dto.LoginRequest;
 import com.sistema.dto.RegisterRequest;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Controlador REST para manejar las operaciones relacionadas con los usuarios.
@@ -21,6 +24,12 @@ public class UsuarioController {
     @Autowired // Inyección de dependencias, permite que Spring gestione la instancia del servicio.
     private UsuarioService usuarioService;
 
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
     /**
      * Maneja la solicitud de registro de un nuevo usuario.
      *
@@ -28,14 +37,27 @@ public class UsuarioController {
      * @return ResponseEntity con el AuthResponse.
      */
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> registrarUsuario(@RequestBody RegisterRequest registerRequest) {
-        try {
-            AuthResponse response = usuarioService.registrar(registerRequest);
-            return ResponseEntity.ok(response); // Devuelve una respuesta 200 OK con el objeto AuthResponse.
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(new AuthResponse(e.getMessage())); // Devuelve una respuesta 400 Bad Request con el mensaje de error.
+    public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
+        // Comprobamos que todos los campos necesarios estén presentes
+        if (registerRequest.getNombreUsuario().isEmpty() ||
+                registerRequest.getEmail().isEmpty() ||
+                registerRequest.getContrasena().isEmpty()) {
+            return ResponseEntity.badRequest().body("Faltan campos obligatorios");
         }
+
+        // Creamos un nuevo usuario
+        Usuario usuario = new Usuario();
+        usuario.setNombre(registerRequest.getNombreUsuario());
+        usuario.setEmail(registerRequest.getEmail());
+        usuario.setContrasena(passwordEncoder.encode(registerRequest.getContrasena()));
+        usuario.setApellidos(registerRequest.getApellidos());
+
+        // Guardamos el usuario en la base de datos
+        Usuario newUser = usuarioRepository.save(usuario);
+        return ResponseEntity.ok(new AuthResponse(newUser, "Registro exitoso"));
     }
+
+
 
     /**
      * Maneja la solicitud de autenticación de un usuario.
@@ -44,13 +66,15 @@ public class UsuarioController {
      * @return ResponseEntity con el AuthResponse.
      */
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> autenticarUsuario(@RequestBody LoginRequest loginRequest) {
-        try {
-            AuthResponse response = usuarioService.autenticar(loginRequest);
-            return ResponseEntity.ok(response); // Devuelve una respuesta 200 OK con el objeto AuthResponse.
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body(new AuthResponse(e.getMessage())); // Devuelve una respuesta 401 Unauthorized con el mensaje de error.
+    public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
+        Optional<Usuario> optionalUser = usuarioRepository.findByEmail(loginRequest.getEmail());
+        if (optionalUser.isPresent()) {
+            Usuario existingUser = optionalUser.get();
+            if (passwordEncoder.matches(loginRequest.getContrasena(), existingUser.getContrasena())) {
+                return ResponseEntity.ok(new AuthResponse(existingUser, "Inicio de sesión exitoso"));
+            }
         }
+        return ResponseEntity.status(401).body("Email o contraseña inválidos");
     }
 
     /**
@@ -71,9 +95,13 @@ public class UsuarioController {
      * @return ResponseEntity con el usuario actualizado.
      */
     @PutMapping("/perfil")
-    public ResponseEntity<Usuario> updateUserProfile(@RequestBody Usuario userProfile) {
-        Usuario updatedUsuario = usuarioService.actualizarPerfil(userProfile);
-        return ResponseEntity.ok(updatedUsuario); // Devuelve una respuesta 200 OK con el usuario actualizado.
+    public ResponseEntity<Usuario> actualizarPerfil(@RequestBody Usuario userProfile) {
+        try {
+            Usuario usuarioActualizado = usuarioService.actualizarPerfil(userProfile);
+            return ResponseEntity.ok(usuarioActualizado);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     /**

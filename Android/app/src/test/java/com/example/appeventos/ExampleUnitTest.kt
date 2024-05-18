@@ -1,4 +1,4 @@
-package com.example.entradas
+package com.example.appeventos
 
 import org.junit.Test
 

@@ -6,7 +6,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "entradas")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIgnoreProperties({"evento", "usuario"})
 public class Entrada {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
