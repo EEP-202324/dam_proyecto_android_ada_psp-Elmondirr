@@ -44,7 +44,7 @@ fun EventDetailScreen(navController: NavController, eventoId: Int) {
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color(0xFFF7F9FC)  // Un fondo suave y claro
+        color = Color(0xFFFAFAFA)
     ) {
         Column(
             modifier = Modifier

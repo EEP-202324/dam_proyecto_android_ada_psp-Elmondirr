@@ -21,51 +21,30 @@ import retrofit2.Response
 fun TicketListScreen(navController: NavController) {
     val context = LocalContext.current
     var entradas by remember { mutableStateOf(listOf<Entrada>()) }
-    var page by remember { mutableStateOf(1) } // Estado para la página actual
 
     // LaunchedEffect para llamar a la API una sola vez al inicializar el composable
     LaunchedEffect(key1 = true) {
-        fetchTickets(context, page) { loadedTickets ->
+        fetchTickets(context) { loadedTickets ->
             entradas = loadedTickets
         }
     }
 
     // UI para mostrar las entradas
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-        ) {
-            items(entradas) { entrada ->
-                TicketItem(entrada, navController)
-                Spacer(modifier = Modifier.height(32.dp)) // Espacio entre los elementos
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Botón para cargar más entradas
-        Button(
-            onClick = {
-                page += 1 // Incrementa la página
-                fetchTickets(context, page) { loadedTickets ->
-                    entradas = entradas + loadedTickets // Añade las nuevas entradas a las existentes
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Cargar más entradas")
+        items(entradas) { entrada ->
+            TicketItem(entrada, navController)
+            Spacer(modifier = Modifier.height(32.dp)) // Espacio entre los elementos
         }
     }
 }
 
 // Función para llamar a la API y obtener las entradas
-fun fetchTickets(context: Context, page: Int, updateTickets: (List<Entrada>) -> Unit) {
-    ApiClient.apiService.getTickets(page).enqueue(object : Callback<List<Entrada>> {
+fun fetchTickets(context: Context, updateTickets: (List<Entrada>) -> Unit) {
+    ApiClient.apiService.getTickets().enqueue(object : Callback<List<Entrada>> {
         override fun onResponse(call: Call<List<Entrada>>, response: Response<List<Entrada>>) {
             if (response.isSuccessful) {
                 updateTickets(response.body() ?: emptyList())

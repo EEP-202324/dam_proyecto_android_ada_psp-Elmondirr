@@ -36,12 +36,7 @@ public class SecurityConfig implements WebMvcConfigurer {
         http
                 .csrf(AbstractHttpConfigurer::disable) // Desactiva CSRF para simplificar la configuración
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/usuarios/login", "/usuarios/register").permitAll() // Permitir acceso no autenticado a rutas de login y registro
-                        .requestMatchers("/eventos/**").permitAll() // Permitir acceso no autenticado a todas las rutas de eventos
-                        .requestMatchers("/entradas/**").permitAll() // permitir acceso no autenticado a todas las rutas de las entradas
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // Permitir acceso a la documentación de la API
-                        .requestMatchers("/usuarios/perfil/**").permitAll() // Permitir acceso no autenticado a las rutas de perfil de usuario
-                        .anyRequest().authenticated()) // Requiere autenticación para cualquier otra solicitud
+                        .anyRequest().permitAll()) // Permitir acceso no autenticado a todas las solicitudes
                 .httpBasic(httpBasic -> httpBasic.disable()); // Deshabilitar la autenticación básica HTTP
         return http.build();
     }
