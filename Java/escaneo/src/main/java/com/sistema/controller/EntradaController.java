@@ -68,9 +68,9 @@ public class EntradaController {
      * @return ResponseEntity con la entrada creada o un 400 Bad Request si ocurre un error.
      */
     @PostMapping
-    public ResponseEntity<?> createEntrada(@RequestParam int usuarioId, @RequestParam int eventoId) {
+    public ResponseEntity<?> createEntrada(@RequestParam int usuarioId, @RequestParam int eventoId, @RequestParam String titulo) {
         try {
-            Entrada entrada = entradaService.guardarEntrada(usuarioId, eventoId);
+            Entrada entrada = entradaService.guardarEntrada(usuarioId, eventoId, titulo);
             return ResponseEntity.ok(entrada); // Devuelve una respuesta 200 OK con la entrada creada.
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage()); // Devuelve una respuesta 400 Bad Request si ocurre un error.
@@ -103,7 +103,7 @@ public class EntradaController {
         return entradaService.obtenerEntradaPorId(id)
                 .map(u -> {
                     entrada.setId(id); // Si se encuentra la entrada, se establece su ID.
-                    return ResponseEntity.ok(entradaService.guardarEntrada(entrada.getUsuario().getId(), entrada.getEvento().getId())); // Devuelve una respuesta 200 OK con la entrada actualizada.
+                    return ResponseEntity.ok(entradaService.guardarEntrada(entrada.getUsuario().getId(), entrada.getEvento().getId(), entrada.getTitulo())); // Devuelve una respuesta 200 OK con la entrada actualizada.
                 })
                 .orElse(ResponseEntity.notFound().build()); // Devuelve una respuesta 404 Not Found si no se encuentra la entrada.
     }

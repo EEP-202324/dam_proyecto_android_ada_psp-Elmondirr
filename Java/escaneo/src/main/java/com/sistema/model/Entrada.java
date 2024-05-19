@@ -23,6 +23,9 @@ public class Entrada {
     @Column(nullable = false, updatable = false, unique = true, length = 36)
     private String uuid;
 
+    @Column(nullable = true, updatable = true, unique = false, length = 255)
+    private String titulo;
+
     public int getId() {
         return id;
     }
@@ -53,6 +56,14 @@ public class Entrada {
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
+    }
+
+    public String getTitulo() {
+        return titulo;
+    }
+
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
     }
 
     @PrePersist

@@ -46,7 +46,8 @@ interface ApiService {
     @POST("entradas")
     open fun createTicket(
         @Query("usuarioId") userId: Int,
-        @Query("eventoId") eventId: Int
+        @Query("eventoId") eventId: Int,
+        @Query("titulo") quantity: String
     ): Call<SuscribirResponse?>?
 
     // Endpoint para obtener el perfil de usuario. Envía una solicitud GET y recibe un objeto Usuario
@@ -67,4 +68,8 @@ interface ApiService {
 
     @GET("tickets")
     fun getTickets(@Query("page") page: Int): Call<List<Entrada>>
+
+    // Endpoint para eliminar una entrada específica por su ID
+    @DELETE("entradas/{id}")
+    fun deleteTicket(@Path("id") id: Int): Call<Void>
 }

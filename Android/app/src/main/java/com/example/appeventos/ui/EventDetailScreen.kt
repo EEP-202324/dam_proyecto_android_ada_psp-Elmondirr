@@ -32,11 +32,6 @@ fun EventDetailScreen(navController: NavController, eventoId: Int) {
     val eventoState = remember { mutableStateOf<Evento?>(null) }
     val context = LocalContext.current
 
-    // Form states
-    val titulo = remember { mutableStateOf("") }
-    val aforo = remember { mutableStateOf("") }
-    val fecha = remember { mutableStateOf("") }
-
     // Cargar el evento cuando el composable se compone y cada vez que cambia el eventoId
     LaunchedEffect(eventoId) {
         getEvent(context, eventoId, eventoState)
@@ -83,7 +78,8 @@ fun EventDetailScreen(navController: NavController, eventoId: Int) {
                 onClick = {
                    // val suscribirRequest =
                    //     SuscribirRequest(eventoId = eventoId, usuarioId = usuarioId.value)
-                    ApiClient.apiService.createTicket(usuarioId.value, eventId = eventoId)
+                    ApiClient.apiService.createTicket(usuarioId.value, eventId = eventoId, eventoState.value?.titulo
+                        ?:"")
                         ?.enqueue(object : Callback<SuscribirResponse?> {
                             override fun onResponse(
                                 call: Call<SuscribirResponse?>,

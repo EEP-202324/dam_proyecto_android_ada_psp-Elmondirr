@@ -23,7 +23,7 @@
 
 
         // Método para guardar una entrada en la base de datos
-        public Entrada guardarEntrada(int usuarioId, int eventoId) {
+        public Entrada guardarEntrada(int usuarioId, int eventoId, String titulo) {
             // Busca el usuario por ID y lanza una excepción si no se encuentra
             Usuario usuario = usuarioRepository.findById(usuarioId)
                     .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -37,6 +37,7 @@
             entrada.setUsuario(usuario); // Asigna el usuario a la entrada
             entrada.setEvento(evento); // Asigna el evento a la entrada
             entrada.setUuid(generateUUID()); // Genera y asigna un UUID a la entrada
+            entrada.setTitulo(titulo); // genera titulo
             return entradaRepository.save(entrada); // Guarda la entrada en la base de datos y la retorna
         }
 

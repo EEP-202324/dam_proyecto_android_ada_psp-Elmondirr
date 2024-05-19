@@ -5,9 +5,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -22,6 +24,7 @@ fun TicketListScreen(navController: NavController) {
     val context = LocalContext.current
     var entradas by remember { mutableStateOf(listOf<Entrada>()) }
 
+
     // LaunchedEffect para llamar a la API una sola vez al inicializar el composable
     LaunchedEffect(key1 = true) {
         fetchTickets(context) { loadedTickets ->
@@ -29,15 +32,22 @@ fun TicketListScreen(navController: NavController) {
         }
     }
 
-    // UI para mostrar las entradas
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        containerColor = Color.White
     ) {
-        items(entradas) { entrada ->
-            TicketItem(entrada, navController)
-            Spacer(modifier = Modifier.height(32.dp)) // Espacio entre los elementos
+        it.calculateTopPadding() // Calcular el padding superior
+
+        // UI para mostrar las entradas
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            items(entradas) { entrada ->
+                TicketItem(entrada, navController)
+                Spacer(modifier = Modifier.height(40.dp)) // Espacio entre los elementos
+            }
         }
     }
 }
@@ -62,7 +72,7 @@ fun fetchTickets(context: Context, updateTickets: (List<Entrada>) -> Unit) {
 // Composable para representar cada entrada
 @Composable
 fun TicketItem(entrada: Entrada, navController: NavController) {
-    val tituloEvento = entrada.tituloEvento ?: "Título no disponible" // Manejar nulos
+    val tituloEvento = entrada.titulo ?: "Título no disponible" // Manejar nulos
     Column(
         modifier = Modifier
             .fillMaxWidth()

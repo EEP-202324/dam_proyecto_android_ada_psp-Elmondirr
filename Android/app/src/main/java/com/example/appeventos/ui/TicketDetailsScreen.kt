@@ -61,7 +61,7 @@ fun TicketDetailScreen(navController: NavController, entradaId: Int, ticketUuid:
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                "Tu codigo QR",
+                "Detalles de la Entrada",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
@@ -79,6 +79,35 @@ fun TicketDetailScreen(navController: NavController, entradaId: Int, ticketUuid:
                         .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(12.dp))
                         .padding(8.dp)
                 )
+            }
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Button(
+                onClick = {
+                    val userId = getUserId(context)
+                    if (userId != -1) {
+                        val usarEntradaRequest = UsarEntradaRequest(entradaId = entradaId, usuarioId = userId)
+                        ApiClient.apiService.useTicket(usarEntradaRequest).enqueue(object : Callback<UsarEntradaResponse> {
+                            override fun onResponse(call: Call<UsarEntradaResponse>, response: Response<UsarEntradaResponse>) {
+                                if (response.isSuccessful && response.body()?.exito == true) {
+                                    Toast.makeText(context, "Entrada utilizada correctamente", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Toast.makeText(context, "Fallo al usar la entrada", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                            override fun onFailure(call: Call<UsarEntradaResponse>, t: Throwable) {
+                                Toast.makeText(context, "Error de red", Toast.LENGTH_SHORT).show()
+                            }
+                        })
+                    } else {
+                        Toast.makeText(context, "Usuario no autenticado", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Verdoso),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Usar Entrada", color = MaterialTheme.colorScheme.onPrimary, fontSize = 18.sp)
             }
         }
     }
