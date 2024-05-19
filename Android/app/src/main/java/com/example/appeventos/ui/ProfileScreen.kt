@@ -1,3 +1,4 @@
+import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -127,9 +128,32 @@ fun ProfileScreen(navController: NavController) {
             ) {
                 Text("Guardar Cambios", color = Color.White)
             }
-
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = {
+                    deleteProfile(context, navController, User.id)
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F))
+            ) {
+                Text("Borrar Perfil", color = Color.White)
+            }
         }
     }
 }
 
+fun deleteProfile(context: Context, navController: NavController, userId: Int) {
+    ApiClient.apiService.deleteUser(userId).enqueue(object : Callback<Void> {
+        override fun onResponse(call: Call<Void>, response: Response<Void>) {
+            if (response.isSuccessful) {
+                Toast.makeText(context, "Perfil eliminado", Toast.LENGTH_SHORT).show()
+                navController.navigate("login") // Redirigir a la pantalla de inicio de sesión
+            } else {
+                Toast.makeText(context, "Fallo al eliminar el perfil: ${response.errorBody()?.string()}", Toast.LENGTH_LONG).show()
+            }
+        }
 
+        override fun onFailure(call: Call<Void>, t: Throwable) {
+            Toast.makeText(context, "Error de red: ${t.message}", Toast.LENGTH_LONG).show()
+        }
+    })
+}

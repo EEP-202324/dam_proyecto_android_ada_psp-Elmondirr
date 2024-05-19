@@ -60,7 +60,7 @@ fun AdminPanelScreen(navController: NavController) {
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Gestionar Usuarios", color = Color.White, fontSize = 18.sp)
+                Text("Perfil", color = Color.White, fontSize = 18.sp)
             }
         }
     }

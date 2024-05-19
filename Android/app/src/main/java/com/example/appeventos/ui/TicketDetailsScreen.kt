@@ -1,5 +1,4 @@
-package com.example.appeventos.ui
-
+import android.content.Context
 import android.graphics.Bitmap
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -7,8 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,10 +30,9 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-val Verdoso = Color(0xFF00695C)
-
 @Composable
 fun TicketDetailScreen(navController: NavController, entradaId: Int, ticketUuid: String) {
+    val Verdoso = Color(0xFF00695C)
     val context = LocalContext.current
     val qrCodeBitmap = remember { generateQRCode(ticketUuid) }
 
@@ -109,6 +106,21 @@ fun TicketDetailScreen(navController: NavController, entradaId: Int, ticketUuid:
             ) {
                 Text("Usar Entrada", color = MaterialTheme.colorScheme.onPrimary, fontSize = 18.sp)
             }
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Button(
+                onClick = {
+                    deleteTicket(context, entradaId) {
+                        Toast.makeText(context, "Entrada eliminada", Toast.LENGTH_SHORT).show()
+                        navController.popBackStack()  // Volver a la pantalla anterior
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Eliminar Entrada", color = MaterialTheme.colorScheme.onPrimary, fontSize = 18.sp)
+            }
         }
     }
 }
@@ -130,4 +142,21 @@ fun generateQRCode(text: String): Bitmap? {
     } catch (e: Exception) {
         null
     }
+}
+
+// Función para eliminar una entrada
+fun deleteTicket(context: Context, entradaId: Int, onSuccess: () -> Unit) {
+    ApiClient.apiService.deleteTicket(entradaId).enqueue(object : Callback<Void> {
+        override fun onResponse(call: Call<Void>, response: Response<Void>) {
+            if (response.isSuccessful) {
+                onSuccess()
+            } else {
+                Toast.makeText(context, "Fallo al eliminar la entrada", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        override fun onFailure(call: Call<Void>, t: Throwable) {
+            Toast.makeText(context, "Error de red", Toast.LENGTH_SHORT).show()
+        }
+    })
 }

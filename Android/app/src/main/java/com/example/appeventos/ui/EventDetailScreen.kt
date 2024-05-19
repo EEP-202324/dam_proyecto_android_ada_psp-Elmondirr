@@ -3,6 +3,7 @@ package com.example.appeventos.ui
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -26,6 +27,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventDetailScreen(navController: NavController, eventoId: Int) {
     var usuarioId = remember { mutableStateOf(User.id) }  // Asignar ID de usuario real
@@ -37,84 +39,89 @@ fun EventDetailScreen(navController: NavController, eventoId: Int) {
         getEvent(context, eventoId, eventoState)
     }
 
-    Surface(
+    Scaffold(
         modifier = Modifier.fillMaxSize(),
-        color = Color(0xFFFAFAFA)
+        containerColor = Color.White
     ) {
-        Column(
+        it.calculateTopPadding() // Calcular el padding superior
+
+        Surface(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .background(color = Color(0xFFFAFAFA)) // Gris claro
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.events),
-                contentDescription = "Imagen del Evento",
-                modifier = Modifier.size(150.dp)
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                "Detalles del Evento",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF333333)
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            Divider(
-                color = Color(0xFFBDBDBD),
-                thickness = 2.dp,
-                modifier = Modifier.padding(vertical = 4.dp)
-            )
-
-            eventoState.value?.let { evento ->
-                Text("Título: ${evento.titulo}", fontSize = 18.sp, color = Color(0xFF616161))
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("Aforo: ${evento.aforo}", fontSize = 18.sp, color = Color(0xFF616161))
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("Fecha: ${evento.fecha}", fontSize = 18.sp, color = Color(0xFF616161))
-            } ?: Text("Cargando detalles del evento...", fontSize = 16.sp, color = Color.Gray)
-            Button(
-                onClick = {
-                   // val suscribirRequest =
-                   //     SuscribirRequest(eventoId = eventoId, usuarioId = usuarioId.value)
-                    ApiClient.apiService.createTicket(usuarioId.value, eventId = eventoId, eventoState.value?.titulo
-                        ?:"")
-                        ?.enqueue(object : Callback<SuscribirResponse?> {
-                            override fun onResponse(
-                                call: Call<SuscribirResponse?>,
-                                response: Response<SuscribirResponse?>
-                            ) {
-                                if (response.isSuccessful && response.code() == 200) {
-                                    Toast.makeText(
-                                        context,
-                                        "compra exitosa",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                } else {
-                                    Toast.makeText(
-                                        context,
-                                        "Fallo al compra",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
-
-                            override fun onFailure(call: Call<SuscribirResponse?>, t: Throwable) {
-                                Toast.makeText(context, "Error de red", Toast.LENGTH_SHORT).show()
-                            }
-                        })
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00695C)),
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Comprar entrada", color = Color.White, fontSize = 16.sp)
+                Image(
+                    painter = painterResource(id = R.drawable.events),
+                    contentDescription = "Imagen del Evento",
+                    modifier = Modifier.size(150.dp)
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    "Detalles del Evento",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF333333)
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Divider(
+                    color = Color(0xFFBDBDBD),
+                    thickness = 2.dp,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+
+                eventoState.value?.let { evento ->
+                    Text("Título: ${evento.titulo}", fontSize = 18.sp, color = Color(0xFF616161))
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Aforo: ${evento.aforo}", fontSize = 18.sp, color = Color(0xFF616161))
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Fecha: ${evento.fecha}", fontSize = 18.sp, color = Color(0xFF616161))
+                } ?: Text("Cargando detalles del evento...", fontSize = 16.sp, color = Color.Gray)
+                Button(
+                    onClick = {
+                        ApiClient.apiService.createTicket(usuarioId.value, eventId = eventoId, eventoState.value?.titulo
+                            ?:"")
+                            ?.enqueue(object : Callback<SuscribirResponse?> {
+                                override fun onResponse(
+                                    call: Call<SuscribirResponse?>,
+                                    response: Response<SuscribirResponse?>
+                                ) {
+                                    if (response.isSuccessful && response.code() == 200) {
+                                        Toast.makeText(
+                                            context,
+                                            "Compra exitosa",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    } else {
+                                        Toast.makeText(
+                                            context,
+                                            "Fallo al comprar",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+
+                                override fun onFailure(call: Call<SuscribirResponse?>, t: Throwable) {
+                                    Toast.makeText(context, "Error de red", Toast.LENGTH_SHORT).show()
+                                }
+                            })
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00695C)),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text("Comprar entrada", color = Color.White, fontSize = 16.sp)
+                }
             }
         }
     }
 }
-
 
 // Función para cargar el evento desde la API
 fun getEvent(context: Context, eventId: Int, eventoState: MutableState<Evento?>) {

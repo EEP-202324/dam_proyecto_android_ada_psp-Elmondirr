@@ -72,4 +72,12 @@ interface ApiService {
     // Endpoint para eliminar una entrada específica por su ID
     @DELETE("entradas/{id}")
     fun deleteTicket(@Path("id") id: Int): Call<Void>
+
+    // Endpoint para eliminar el perfil del usuario. Envía una solicitud DELETE con el ID del usuario
+    @DELETE("usuarios/{id}")
+    fun deleteUser(@Path("id") userId: Int): Call<Void>
+
+    // Endpoint para obtener la lista de usuarios
+    @GET("usuarios")
+    fun getUsuarios(): Call<List<Usuario>>
 }

@@ -3,6 +3,7 @@ package com.example.appeventos
 import AdminEventListScreen
 import EventListScreen
 import ProfileScreen
+import TicketDetailScreen
 import TicketListScreen
 import android.os.Build
 import android.os.Bundle
@@ -71,6 +72,8 @@ fun EventApp() {
         composable("profile") { ProfileScreen(navController) }
     }
 }
+
+
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Preview(showBackground = true)
