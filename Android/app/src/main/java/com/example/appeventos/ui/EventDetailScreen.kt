@@ -20,6 +20,7 @@ import com.example.appeventos.R
 import com.example.appeventos.model.Evento
 import com.example.appeventos.model.SuscribirRequest
 import com.example.appeventos.model.SuscribirResponse
+import com.example.appeventos.model.User
 import com.example.appeventos.network.ApiClient
 import retrofit2.Call
 import retrofit2.Callback
@@ -27,7 +28,7 @@ import retrofit2.Response
 
 @Composable
 fun EventDetailScreen(navController: NavController, eventoId: Int) {
-    var usuarioId = remember { mutableStateOf(0) }  // Asignar ID de usuario real
+    var usuarioId = remember { mutableStateOf(User.id) }  // Asignar ID de usuario real
     val eventoState = remember { mutableStateOf<Evento?>(null) }
     val context = LocalContext.current
 
@@ -82,13 +83,13 @@ fun EventDetailScreen(navController: NavController, eventoId: Int) {
                 onClick = {
                    // val suscribirRequest =
                    //     SuscribirRequest(eventoId = eventoId, usuarioId = usuarioId.value)
-                    ApiClient.apiService.createTicket(userId = usuarioId.value, eventId = eventoId)
+                    ApiClient.apiService.createTicket(usuarioId.value, eventId = eventoId)
                         ?.enqueue(object : Callback<SuscribirResponse?> {
                             override fun onResponse(
                                 call: Call<SuscribirResponse?>,
                                 response: Response<SuscribirResponse?>
                             ) {
-                                if (response.isSuccessful && response.body()?.exito == true) {
+                                if (response.isSuccessful && response.code() == 200) {
                                     Toast.makeText(
                                         context,
                                         "compra exitosa",

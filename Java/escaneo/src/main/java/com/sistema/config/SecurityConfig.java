@@ -40,7 +40,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .requestMatchers("/eventos/**").permitAll() // Permitir acceso no autenticado a todas las rutas de eventos
                         .requestMatchers("/entradas/**").permitAll() // permitir acceso no autenticado a todas las rutas de las entradas
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // Permitir acceso a la documentación de la API
-                        .requestMatchers("/usuarios/perfil/**").permitAll()
+                        .requestMatchers("/usuarios/perfil/**").permitAll() // Permitir acceso no autenticado a las rutas de perfil de usuario
                         .anyRequest().authenticated()) // Requiere autenticación para cualquier otra solicitud
                 .httpBasic(httpBasic -> httpBasic.disable()); // Deshabilitar la autenticación básica HTTP
         return http.build();

@@ -43,10 +43,10 @@ interface ApiService {
     fun useTicket(@Body useTicketRequest: UsarEntradaRequest): Call<UsarEntradaResponse>
 
     // para crear ticket
-    @POST("entradas/{usuario_id}{evento_id}")
+    @POST("entradas")
     open fun createTicket(
-        @Path("usuario_id") userId: Int,
-        @Path("evento_id") eventId: Int
+        @Query("usuarioId") userId: Int,
+        @Query("eventoId") eventId: Int
     ): Call<SuscribirResponse?>?
 
     // Endpoint para obtener el perfil de usuario. Envía una solicitud GET y recibe un objeto Usuario
@@ -64,4 +64,7 @@ interface ApiService {
     // metodo para actualizar un evento por ID
     @PUT("eventos/{id}")
     fun updateEvent(@Path("id") eventId: Int, @Body event: Evento): Call<Evento>
+
+    @GET("tickets")
+    fun getTickets(@Query("page") page: Int): Call<List<Entrada>>
 }

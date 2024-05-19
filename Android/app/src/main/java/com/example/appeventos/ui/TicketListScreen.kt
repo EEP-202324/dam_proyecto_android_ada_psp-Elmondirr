@@ -21,29 +21,51 @@ import retrofit2.Response
 fun TicketListScreen(navController: NavController) {
     val context = LocalContext.current
     var entradas by remember { mutableStateOf(listOf<Entrada>()) }
+    var page by remember { mutableStateOf(1) } // Estado para la página actual
 
     // LaunchedEffect para llamar a la API una sola vez al inicializar el composable
     LaunchedEffect(key1 = true) {
-        fetchTickets(context) { loadedTickets ->
+        fetchTickets(context, page) { loadedTickets ->
             entradas = loadedTickets
         }
     }
 
     // UI para mostrar las entradas
-    LazyColumn(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        items(entradas) { entrada ->
-            TicketItem(entrada, navController)
+        LazyColumn(
+            modifier = Modifier
+                .weight(1f)
+        ) {
+            items(entradas) { entrada ->
+                TicketItem(entrada, navController)
+                Spacer(modifier = Modifier.height(32.dp)) // Espacio entre los elementos
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Botón para cargar más entradas
+        Button(
+            onClick = {
+                page += 1 // Incrementa la página
+                fetchTickets(context, page) { loadedTickets ->
+                    entradas = entradas + loadedTickets // Añade las nuevas entradas a las existentes
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Cargar más entradas")
         }
     }
 }
 
 // Función para llamar a la API y obtener las entradas
-fun fetchTickets(context: Context, updateTickets: (List<Entrada>) -> Unit) {
-    ApiClient.apiService.getTickets().enqueue(object : Callback<List<Entrada>> {
+fun fetchTickets(context: Context, page: Int, updateTickets: (List<Entrada>) -> Unit) {
+    ApiClient.apiService.getTickets(page).enqueue(object : Callback<List<Entrada>> {
         override fun onResponse(call: Call<List<Entrada>>, response: Response<List<Entrada>>) {
             if (response.isSuccessful) {
                 updateTickets(response.body() ?: emptyList())
@@ -51,6 +73,7 @@ fun fetchTickets(context: Context, updateTickets: (List<Entrada>) -> Unit) {
                 Toast.makeText(context, "Fallo al cargar las entradas", Toast.LENGTH_SHORT).show()
             }
         }
+
         override fun onFailure(call: Call<List<Entrada>>, t: Throwable) {
             Toast.makeText(context, "Error de red", Toast.LENGTH_SHORT).show()
         }
@@ -60,14 +83,19 @@ fun fetchTickets(context: Context, updateTickets: (List<Entrada>) -> Unit) {
 // Composable para representar cada entrada
 @Composable
 fun TicketItem(entrada: Entrada, navController: NavController) {
-    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-        Text("Entrada para evento: ${entrada.evento.titulo}", style = MaterialTheme.typography.bodyLarge)
+    val tituloEvento = entrada.tituloEvento ?: "Título no disponible" // Manejar nulos
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    ) {
+        Text("Entrada para evento: $tituloEvento", style = MaterialTheme.typography.bodyLarge)
         Spacer(modifier = Modifier.height(8.dp))
         Button(
             onClick = { navController.navigate("ticketDetail/${entrada.id}/${entrada.uuid}") },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Ver Detalles")
+            Text("Abrir tu entrada")
         }
     }
 }
