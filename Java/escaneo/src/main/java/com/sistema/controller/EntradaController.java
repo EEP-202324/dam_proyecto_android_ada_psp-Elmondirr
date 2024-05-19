@@ -67,7 +67,7 @@ public class EntradaController {
      * @param eventoId ID del evento.
      * @return ResponseEntity con la entrada creada o un 400 Bad Request si ocurre un error.
      */
-    @PostMapping
+    @PostMapping("/suscribir")
     public ResponseEntity<?> createEntrada(@RequestParam int usuarioId, @RequestParam int eventoId) {
         try {
             Entrada entrada = entradaService.guardarEntrada(usuarioId, eventoId);

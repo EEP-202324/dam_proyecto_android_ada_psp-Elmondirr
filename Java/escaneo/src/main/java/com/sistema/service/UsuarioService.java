@@ -52,8 +52,8 @@ public class UsuarioService {
     }
 
     // Método para obtener el usuario autenticado (ejemplo con ID 1)
-    public Usuario obtenerUsuarioAutenticado() {
-        return usuarioRepository.findById(1).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    public Usuario obtenerUsuarioAutenticado(String id) {
+        return usuarioRepository.findById(Integer.parseInt(id)).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 
     // Método para actualizar el perfil de un usuario
@@ -63,7 +63,6 @@ public class UsuarioService {
         usuarioExistente.setNombre(userProfile.getNombre());
         usuarioExistente.setApellidos(userProfile.getApellidos());
         usuarioExistente.setEmail(userProfile.getEmail());
-        usuarioExistente.setContrasena(userProfile.getContrasena());
         return usuarioRepository.save(usuarioExistente);
     }
 

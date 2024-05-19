@@ -4,6 +4,7 @@ import com.example.appeventos.model.*
 import retrofit2.Call
 import retrofit2.http.*
 
+
 interface ApiService {
     // Endpoint para iniciar sesión. Envía una solicitud POST con LoginRequest y recibe una respuesta de tipo AuthResponse
     @POST("usuarios/login")
@@ -41,9 +42,16 @@ interface ApiService {
     @POST("entradas/usar")
     fun useTicket(@Body useTicketRequest: UsarEntradaRequest): Call<UsarEntradaResponse>
 
+    // para crear ticket
+    @POST("entradas/{usuario_id}{evento_id}")
+    open fun createTicket(
+        @Path("usuario_id") userId: Int,
+        @Path("evento_id") eventId: Int
+    ): Call<SuscribirResponse?>?
+
     // Endpoint para obtener el perfil de usuario. Envía una solicitud GET y recibe un objeto Usuario
-    @GET("usuarios/perfil")
-    fun getUserProfile(): Call<Usuario>
+    @GET("usuarios/perfil/{id}")
+    fun getUserProfile(@Path ("id") userId: Int): Call<Usuario>
 
     // Endpoint para actualizar el perfil de usuario. Envía una solicitud PUT con el objeto Usuario actualizado y recibe el objeto Usuario actualizado
     @PUT("usuarios/perfil")

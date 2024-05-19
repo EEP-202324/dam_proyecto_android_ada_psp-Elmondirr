@@ -1,5 +1,7 @@
 package com.example.appeventos.model
 
-object UserRol {
+object User {
+    var pass: String = ""
+    var id: Int = -1
     var rol: String = ""
 }

@@ -2,10 +2,7 @@ package com.example.appeventos.ui
 
 import android.content.Context
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -36,7 +33,7 @@ fun AdminEventDetailScreen(navController: NavController, eventoId: Int) {
 
     // Cargar el evento cuando el composable se compone y cada vez que cambia el eventoId
     LaunchedEffect(eventoId) {
-        getEvent(context, eventoId, eventoState)
+        AdmingetEvent(context, eventoId, eventoState)
     }
 
     // Update form fields when eventoState changes
@@ -48,25 +45,23 @@ fun AdminEventDetailScreen(navController: NavController, eventoId: Int) {
         }
     }
 
-
-
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color(0xFFF7F9FC) // Un fondo suave y claro
+        color = Color(0xFFFAFAFA) // Un fondo más claro y suave
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.padding(24.dp)
         ) {
-            Divider(color = Color(0xFF00695C), thickness = 2.dp)
+            Divider(color = Color(0xFFBDBDBD), thickness = 2.dp)
             Text(
                 "Detalles del Evento",
-                fontSize = 24.sp,
+                fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Black
+                color = Color(0xFF424242)
             )
-            Divider(color = Color(0xFF00695C), thickness = 2.dp, modifier = Modifier.padding(vertical = 4.dp))
+            Divider(color = Color(0xFFBDBDBD), thickness = 2.dp, modifier = Modifier.padding(vertical = 4.dp))
             eventoState.value?.let { evento ->
                 if (editMode.value) {
                     // Mostrar el formulario de edición
@@ -74,19 +69,25 @@ fun AdminEventDetailScreen(navController: NavController, eventoId: Int) {
                         value = titulo.value,
                         onValueChange = { titulo.value = it },
                         label = { Text("Título") },
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
                     )
                     OutlinedTextField(
                         value = aforo.value,
                         onValueChange = { aforo.value = it },
                         label = { Text("Aforo") },
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
                     )
                     OutlinedTextField(
                         value = fecha.value,
                         onValueChange = { fecha.value = it },
                         label = { Text("Fecha") },
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
                     )
                     Spacer(modifier = Modifier.height(20.dp))
                     Row(
@@ -98,7 +99,7 @@ fun AdminEventDetailScreen(navController: NavController, eventoId: Int) {
                                 editMode.value = false
                                 updateEvent(context, eventoId, titulo.value, aforo.value.toInt(), fecha.value, navController)
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF81C784)) // Verde pastel
                         ) {
                             Text("Guardar", color = Color.White, fontSize = 16.sp)
                         }
@@ -106,18 +107,18 @@ fun AdminEventDetailScreen(navController: NavController, eventoId: Int) {
                             onClick = {
                                 editMode.value = false
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336))
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE57373)) // Rojo pastel
                         ) {
                             Text("Cancelar", color = Color.White, fontSize = 16.sp)
                         }
                     }
                 } else {
                     // Mostrar los detalles del evento
-                    Text("Título: ${evento.titulo}", fontSize = 18.sp, color = Color.DarkGray)
+                    Text("Título: ${evento.titulo}", fontSize = 18.sp, color = Color(0xFF616161))
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("Aforo: ${evento.aforo}", fontSize = 18.sp, color = Color.DarkGray)
+                    Text("Aforo: ${evento.aforo}", fontSize = 18.sp, color = Color(0xFF616161))
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("Fecha: ${evento.fecha}", fontSize = 18.sp, color = Color.DarkGray)
+                    Text("Fecha: ${evento.fecha}", fontSize = 18.sp, color = Color(0xFF616161))
                     Spacer(modifier = Modifier.height(20.dp))
 
                     // Botones para modificar y borrar
@@ -129,7 +130,7 @@ fun AdminEventDetailScreen(navController: NavController, eventoId: Int) {
                             onClick = {
                                 editMode.value = true
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF81C784)) // Verde pastel
                         ) {
                             Text("Modificar", color = Color.White, fontSize = 16.sp)
                         }
@@ -138,20 +139,19 @@ fun AdminEventDetailScreen(navController: NavController, eventoId: Int) {
                                 showConfirmationDialog.value = true
                                 deleteEvent(context, eventoId, navController)
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336)) // Ajuste del color del botón 'Borrar' a rojo
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE57373)) // Rojo pastel
                         ) {
                             Text("Borrar", color = Color.White, fontSize = 16.sp)
                         }
                     }
                 }
             } ?: Text("Cargando detalles del evento...", fontSize = 16.sp, color = Color.Gray)
-
         }
     }
 }
 
 // Función para cargar el evento desde la API
-fun getEvent(context: Context, eventId: Int, eventoState: MutableState<Evento?>) {
+fun AdmingetEvent(context: Context, eventId: Int, eventoState: MutableState<Evento?>) {
     ApiClient.apiService.getEvent(eventId).enqueue(object : Callback<Evento> {
         override fun onResponse(call: Call<Evento>, response: Response<Evento>) {
             if (response.isSuccessful) {
@@ -203,4 +203,3 @@ fun deleteEvent(context: Context, eventId: Int, navController: NavController) {
         }
     })
 }
-

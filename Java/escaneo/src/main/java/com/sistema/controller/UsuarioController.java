@@ -14,6 +14,8 @@ import com.sistema.dto.RegisterRequest;
 import java.util.List;
 import java.util.Optional;
 
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
+
 /**
  * Controlador REST para manejar las operaciones relacionadas con los usuarios.
  */
@@ -82,9 +84,9 @@ public class UsuarioController {
      *
      * @return ResponseEntity con el usuario autenticado.
      */
-    @GetMapping("/perfil")
-    public ResponseEntity<Usuario> getUserProfile() {
-        Usuario usuario = usuarioService.obtenerUsuarioAutenticado();
+    @GetMapping("/perfil/{id}")
+    public ResponseEntity<Usuario> getUserProfile(@PathVariable String id) {
+        Usuario usuario = usuarioService.obtenerUsuarioAutenticado(id);
         return ResponseEntity.ok(usuario); // Devuelve una respuesta 200 OK con el usuario autenticado.
     }
 

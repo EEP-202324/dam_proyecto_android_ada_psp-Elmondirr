@@ -11,7 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.appeventos.model.Evento
-import com.example.appeventos.model.UserRol
+import com.example.appeventos.model.User
 import com.example.appeventos.network.ApiClient
 import retrofit2.Call
 import retrofit2.Callback
@@ -68,7 +68,7 @@ fun EventItem(evento: Evento, navController: NavController) {
             Spacer(modifier = Modifier.height(8.dp))
             Button(
                 onClick = {
-                    if (UserRol.rol.isNotEmpty() && UserRol.rol == "ADMIN") {
+                    if (User.rol.isNotEmpty() && User.rol == "ADMIN") {
                         navController.navigate("adminEventDetail/${evento.id}")
                     } else {
                         navController.navigate("eventDetail/${evento.id}") }

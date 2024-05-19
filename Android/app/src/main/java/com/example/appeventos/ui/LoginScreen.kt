@@ -18,13 +18,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.appeventos.R
 import com.example.appeventos.model.LoginRequest
 import com.example.appeventos.model.AuthResponse
-import com.example.appeventos.model.UserRol
+import com.example.appeventos.model.User
 import com.example.appeventos.network.ApiClient
 import retrofit2.Call
 import retrofit2.Callback
@@ -34,6 +35,7 @@ import retrofit2.Response
 fun LoginScreen(navController: NavController) {
     var email by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     Surface(
@@ -82,7 +84,13 @@ fun LoginScreen(navController: NavController) {
                 value = contrasena,
                 onValueChange = { contrasena = it },
                 label = { Text("Contraseña") },
-                visualTransformation = PasswordVisualTransformation(),
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    val image = if (passwordVisible) R.drawable.cerradoojo else R.drawable.abiertoojo  // Cambia el ícono según el estado
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(painter = painterResource(id = image), contentDescription = "Toggle Password Visibility")
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color.White) // Fondo blanco para el campo de texto
@@ -102,7 +110,8 @@ fun LoginScreen(navController: NavController) {
                                     Log.d("LoginScreen", "Login successful: $authResponse")
                                     saveUserId(context, authResponse.usuario.id)
                                     val isAdmin = authResponse.usuario.rol == "ADMIN"
-                                    UserRol.rol = authResponse.usuario.rol
+                                    User.id = authResponse.usuario.id
+                                    User.rol = authResponse.usuario.rol
                                     if (isAdmin) {
                                         navController.navigate("admin")
                                     } else {

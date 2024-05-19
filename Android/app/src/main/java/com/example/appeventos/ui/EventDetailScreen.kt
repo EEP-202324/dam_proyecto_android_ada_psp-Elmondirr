@@ -1,5 +1,6 @@
 package com.example.appeventos.ui
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -16,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.appeventos.R
+import com.example.appeventos.model.Evento
 import com.example.appeventos.model.SuscribirRequest
 import com.example.appeventos.model.SuscribirResponse
 import com.example.appeventos.network.ApiClient
@@ -26,10 +28,17 @@ import retrofit2.Response
 @Composable
 fun EventDetailScreen(navController: NavController, eventoId: Int) {
     var usuarioId = remember { mutableStateOf(0) }  // Asignar ID de usuario real
+    val eventoState = remember { mutableStateOf<Evento?>(null) }
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        usuarioId.value = 1  // Obtener ID del usuario real
+    // Form states
+    val titulo = remember { mutableStateOf("") }
+    val aforo = remember { mutableStateOf("") }
+    val fecha = remember { mutableStateOf("") }
+
+    // Cargar el evento cuando el composable se compone y cada vez que cambia el eventoId
+    LaunchedEffect(eventoId) {
+        getEvent(context, eventoId, eventoState)
     }
 
     Surface(
@@ -56,29 +65,77 @@ fun EventDetailScreen(navController: NavController, eventoId: Int) {
                 color = Color(0xFF333333)
             )
             Spacer(modifier = Modifier.height(12.dp))
+            Divider(
+                color = Color(0xFFBDBDBD),
+                thickness = 2.dp,
+                modifier = Modifier.padding(vertical = 4.dp)
+            )
 
+            eventoState.value?.let { evento ->
+                Text("Título: ${evento.titulo}", fontSize = 18.sp, color = Color(0xFF616161))
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Aforo: ${evento.aforo}", fontSize = 18.sp, color = Color(0xFF616161))
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Fecha: ${evento.fecha}", fontSize = 18.sp, color = Color(0xFF616161))
+            } ?: Text("Cargando detalles del evento...", fontSize = 16.sp, color = Color.Gray)
             Button(
                 onClick = {
-                    val suscribirRequest = SuscribirRequest(eventoId = eventoId, usuarioId = usuarioId.value)
-                    ApiClient.apiService.subscribeToEvent(suscribirRequest).enqueue(object : Callback<SuscribirResponse> {
-                        override fun onResponse(call: Call<SuscribirResponse>, response: Response<SuscribirResponse>) {
-                            if (response.isSuccessful && response.body()?.exito == true) {
-                                Toast.makeText(context, "Suscripción exitosa", Toast.LENGTH_SHORT).show()
-                            } else {
-                                Toast.makeText(context, "Fallo al suscribirse", Toast.LENGTH_SHORT).show()
+                   // val suscribirRequest =
+                   //     SuscribirRequest(eventoId = eventoId, usuarioId = usuarioId.value)
+                    ApiClient.apiService.createTicket(userId = usuarioId.value, eventId = eventoId)
+                        ?.enqueue(object : Callback<SuscribirResponse?> {
+                            override fun onResponse(
+                                call: Call<SuscribirResponse?>,
+                                response: Response<SuscribirResponse?>
+                            ) {
+                                if (response.isSuccessful && response.body()?.exito == true) {
+                                    Toast.makeText(
+                                        context,
+                                        "compra exitosa",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        "Fallo al compra",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
                             }
-                        }
-                        override fun onFailure(call: Call<SuscribirResponse>, t: Throwable) {
-                            Toast.makeText(context, "Error de red", Toast.LENGTH_SHORT).show()
-                        }
-                    })
+
+                            override fun onFailure(call: Call<SuscribirResponse?>, t: Throwable) {
+                                Toast.makeText(context, "Error de red", Toast.LENGTH_SHORT).show()
+                            }
+                        })
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00695C)),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(8.dp)
             ) {
-                Text("Suscribirse", color = Color.White, fontSize = 16.sp)
+                Text("Comprar entrada", color = Color.White, fontSize = 16.sp)
             }
         }
     }
+}
+
+
+// Función para cargar el evento desde la API
+fun getEvent(context: Context, eventId: Int, eventoState: MutableState<Evento?>) {
+    ApiClient.apiService.getEvent(eventId).enqueue(object : Callback<Evento> {
+        override fun onResponse(call: Call<Evento>, response: Response<Evento>) {
+            if (response.isSuccessful) {
+                eventoState.value = response.body()
+            } else {
+                Toast.makeText(
+                    context,
+                    "Fallo al cargar el evento: ${response.errorBody()?.string()}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+
+        override fun onFailure(call: Call<Evento>, t: Throwable) {
+            Toast.makeText(context, "Error de red: ${t.message}", Toast.LENGTH_LONG).show()
+        }
+    })
 }

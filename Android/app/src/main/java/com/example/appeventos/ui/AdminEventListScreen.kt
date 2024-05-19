@@ -17,7 +17,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.appeventos.model.Evento
-import com.example.appeventos.model.UserRol
+import com.example.appeventos.model.User
 import com.example.appeventos.network.ApiClient
 import retrofit2.Call
 import retrofit2.Callback
@@ -37,10 +37,14 @@ fun AdminEventListScreen(navController: NavController) {
     val newFecha = remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
-        fetchEvents(context) { eventos = it }
+        AdminfetchEvents(context) { eventos = it }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xff616161))
+    ) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -55,8 +59,8 @@ fun AdminEventListScreen(navController: NavController) {
             onClick = { showCreateDialog.value = true },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(16.dp) // Añade un poco de espacio desde los bordes de la pantalla
-                .background(color = Color(0xFFE0F7FA)), // Configura el color del fondo aquí
+                .padding(16.dp),
+            containerColor = Color(0xFF00796B), // Verde específico
             contentColor = Color.White
         ) {
             Icon(Icons.Filled.Add, contentDescription = "Crear Evento")
@@ -66,7 +70,7 @@ fun AdminEventListScreen(navController: NavController) {
     if (showCreateDialog.value) {
         AlertDialog(
             onDismissRequest = { showCreateDialog.value = false },
-            title = { Text("Crear Nuevo Evento") },
+            title = { Text("Crear Nuevo Evento", color = Color(0xFF004D40)) }, // Verde oscuro
             text = {
                 Column {
                     OutlinedTextField(
@@ -90,15 +94,21 @@ fun AdminEventListScreen(navController: NavController) {
                 Button(
                     onClick = {
                         showCreateDialog.value = false
-                        createEvent(context, newTitulo.value, newAforo.value.toInt(), parseStringToLocalDate(newFecha.value), navController)
-                    }
+                        createEvent(
+                            context, newTitulo.value, newAforo.value.toInt(),
+                            parseStringToLocalDate(newFecha.value), navController
+                        )
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00796B)) // Verde específico
                 ) {
-                    Text("Añadir")
+                    Text("Añadir", color = Color.White)
                 }
             },
             dismissButton = {
                 Button(
-                    onClick = { showCreateDialog.value = false }
+                    onClick = { showCreateDialog.value = false },
+                    // boton color rojo
+                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB71C1C), contentColor = Color.White)
                 ) {
                     Text("Cancelar")
                 }
@@ -116,6 +126,7 @@ fun AdminfetchEvents(context: Context, updateEvents: (List<Evento>) -> Unit) {
                 Toast.makeText(context, "Fallo al cargar los eventos", Toast.LENGTH_SHORT).show()
             }
         }
+
         override fun onFailure(call: Call<List<Evento>>, t: Throwable) {
             Toast.makeText(context, "Error de red", Toast.LENGTH_SHORT).show()
         }
@@ -130,18 +141,27 @@ fun AdminEventItem(evento: Evento, navController: NavController) {
             .padding(vertical = 8.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(evento.titulo, style = MaterialTheme.typography.titleMedium, color = Color(0xFFE0F7FA))
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally // Centra los elementos horizontalmente dentro de la columna
+        ) {
+            Text(
+                evento.titulo,
+                style = MaterialTheme.typography.titleMedium,
+                color = Color(0xFF004D40), // Verde oscuro
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
             Spacer(modifier = Modifier.height(8.dp))
             Button(
                 onClick = {
-                    if (UserRol.rol.isNotEmpty() && UserRol.rol == "ADMIN") {
+                    if (User.rol.isNotEmpty() && User.rol == "ADMIN") {
                         navController.navigate("adminEventDetail/${evento.id}")
                     } else {
                         navController.navigate("eventDetail/${evento.id}")
                     }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE0F7FA))
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00796B)), // Verde específico
+                modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
                 Text("Ver Detalles", color = Color.White)
             }
@@ -150,31 +170,27 @@ fun AdminEventItem(evento: Evento, navController: NavController) {
 }
 
 // Función para guardar el nuevo evento
-// Función para guardar el nuevo evento
 @RequiresApi(Build.VERSION_CODES.O)
-fun createEvent(context: Context, titulo: String, aforo: Int, fechaString: String, navController: NavController) {
-    val fecha = parseStringToLocalDate(fechaString) // Se parsea la fecha
-    if (fecha != null) {
-        val evento = Evento(titulo = titulo, aforo = aforo, fecha = fecha.toString())
-        ApiClient.apiService.createEvent(evento).enqueue(object : Callback<Evento> {
-            override fun onResponse(call: Call<Evento>, response: Response<Evento>) {
-                if (response.isSuccessful) {
-                    Toast.makeText(context, "Evento creado exitosamente", Toast.LENGTH_LONG).show()
-                    navController.navigateUp()
-                } else {
-                    Toast.makeText(context, "Fallo al crear el evento: ${response.errorBody()?.string()}", Toast.LENGTH_LONG).show()
-                }
+fun createEvent(
+    context: Context, titulo: String, aforo: Int,
+    fecha: String, navController: NavController
+) {
+    val evento = Evento(titulo = titulo, aforo = aforo, fecha = fecha)
+    ApiClient.apiService.createEvent(evento).enqueue(object : Callback<Evento> {
+        override fun onResponse(call: Call<Evento>, response: Response<Evento>) {
+            if (response.isSuccessful) {
+                Toast.makeText(context, "Evento creado exitosamente", Toast.LENGTH_LONG).show()
+                navController.navigateUp()
+            } else {
+                Toast.makeText(context, "Fallo al crear el evento: ${response.errorBody()?.string()}", Toast.LENGTH_LONG).show()
             }
+        }
 
-            override fun onFailure(call: Call<Evento>, t: Throwable) {
-                Toast.makeText(context, "Error de red: ${t.message}", Toast.LENGTH_LONG).show()
-            }
-        })
-    } else {
-        Toast.makeText(context, "La fecha proporcionada no es válida", Toast.LENGTH_LONG).show()
-    }
+        override fun onFailure(call: Call<Evento>, t: Throwable) {
+            Toast.makeText(context, "Error de red: ${t.message}", Toast.LENGTH_LONG).show()
+        }
+    })
 }
-
 
 /**
  * Convierte una cadena de texto que representa una fecha en un objeto LocalDate.
@@ -184,7 +200,7 @@ fun createEvent(context: Context, titulo: String, aforo: Int, fechaString: Strin
 @RequiresApi(Build.VERSION_CODES.O)
 fun parseStringToLocalDate(dateString: String): String {
     return try {
-        if (dateString != null && dateString != "null") {
+        if (dateString != "null") {
             LocalDate.parse(dateString, DateTimeFormatter.ISO_LOCAL_DATE).toString()
         } else {
             LocalDate.now().toString() // Retorna la fecha actual si la cadena es nula o "null"

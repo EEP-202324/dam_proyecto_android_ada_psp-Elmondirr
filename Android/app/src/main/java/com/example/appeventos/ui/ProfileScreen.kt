@@ -1,3 +1,4 @@
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -13,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.appeventos.R
+import com.example.appeventos.model.User
 import com.example.appeventos.model.Usuario
 import com.example.appeventos.network.ApiClient
 import retrofit2.Call
@@ -29,7 +31,7 @@ fun ProfileScreen(navController: NavController) {
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        ApiClient.apiService.getUserProfile().enqueue(object : Callback<Usuario> {
+        ApiClient.apiService.getUserProfile(User.id).enqueue(object : Callback<Usuario> {
             override fun onResponse(call: Call<Usuario>, response: Response<Usuario>) {
                 if (response.isSuccessful) {
                     response.body()?.let {
@@ -60,7 +62,7 @@ fun ProfileScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = R.drawable.perfil),  // Asegúrate de que esta imagen esté disponible en tus recursos
+                painter = painterResource(id = R.drawable.perfil),
                 contentDescription = "Foto de perfil",
                 modifier = Modifier.size(100.dp)
             )
@@ -88,64 +90,46 @@ fun ProfileScreen(navController: NavController) {
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(8.dp))
-
-            // Dropdown menu for role selection
-            var expanded by remember { mutableStateOf(false) }
-            val roles = listOf("ADMIN", "CLIENTE")
-
-            ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { expanded = !expanded }
-            ) {
-                OutlinedTextField(
-                    value = rol,
-                    onValueChange = { },
-                    readOnly = true,
-                    label = { Text("Rol") },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .menuAnchor()
-                )
-                ExposedDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    roles.forEach { selectionOption ->
-                        DropdownMenuItem(
-                            text = { Text(selectionOption) },
-                            onClick = {
-                                rol = selectionOption
-                                expanded = false
-                            }
-                        )
-                    }
-                }
-            }
-
+            // Corregido para comparación insensible a mayúsculas y minúsculas
+            OutlinedTextField(
+                value = if (rol.equals("admin", ignoreCase = true)) "ADMIN" else "CLIENTE",                onValueChange = {},
+                readOnly = true,
+                label = { Text("Rol") },
+                modifier = Modifier.fillMaxWidth()
+            )
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
-                    val userProfile = Usuario(id = 0, nombre = nombreUsuario, email = correo, contrasena = "", rol = rol, apellidos = apellidos)
-                    ApiClient.apiService.updateUserProfile(userProfile).enqueue(object : Callback<Usuario> {
-                        override fun onResponse(call: Call<Usuario>, response: Response<Usuario>) {
-                            if (response.isSuccessful) {
-                                Toast.makeText(context, "Perfil actualizado", Toast.LENGTH_SHORT).show()
-                            } else {
-                                Toast.makeText(context, "Fallo al actualizar el perfil", Toast.LENGTH_SHORT).show()
+                    // Recupera el ID del usuario de una fuente segura (e.g., almacenamiento seguro)
+                    val userId = User.id
+
+                    val userProfile = Usuario(id = userId, nombre = nombreUsuario, email = correo, contrasena = "", rol = rol, apellidos = apellidos)
+
+                    if (userId != 0) {
+                        ApiClient.apiService.updateUserProfile(userProfile).enqueue(object : Callback<Usuario> {
+                            override fun onResponse(call: Call<Usuario>, response: Response<Usuario>) {
+                                if (response.isSuccessful) {
+                                    Toast.makeText(context, "Perfil actualizado", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Toast.makeText(context, "Fallo al actualizar el perfil: ${response.errorBody()?.string()}", Toast.LENGTH_LONG).show()
+                                }
                             }
-                        }
-                        override fun onFailure(call: Call<Usuario>, t: Throwable) {
-                            Toast.makeText(context, "Error de red", Toast.LENGTH_SHORT).show()
-                        }
-                    })
+
+                            override fun onFailure(call: Call<Usuario>, t: Throwable) {
+                                Toast.makeText(context, "Error de red: ${t.message}", Toast.LENGTH_LONG).show()
+                            }
+                        })
+                    } else {
+                        Toast.makeText(context, "ID de usuario no válido", Toast.LENGTH_SHORT).show()
+                    }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF004D40))
             ) {
                 Text("Guardar Cambios", color = Color.White)
             }
+
         }
     }
 }
+
+
