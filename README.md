@@ -21,3 +21,6 @@ Ejecuta la aplicación desde Android Studio.
 
 Uso:
 Una vez instalada, simplemente registra una cuenta o inicia sesión, y comienza a explorar los eventos disponibles. Puedes comprar entradas y ver los detalles de cada evento. También puedes gestionar tu perfil a través de la aplicación.
+
+Video del proyecto:
+https://eepmad-my.sharepoint.com/:v:/g/personal/mondir-alouadni1_eep-igroup_com/EUQwI3MuM3pNud8Gb0zhRK8BPUOIVxqY2i1eq42N8xnAYg?e=XUCdST&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D
